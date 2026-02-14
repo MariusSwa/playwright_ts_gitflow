@@ -1,0 +1,42 @@
+{
+  "name": "playwright_ts_gitflow",
+  "version": "1.0.0",
+  "private": false,
+  "description": "Playwright + TypeScript automation starter using GitFlow and CI. Powered by Test Duo.",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/MariusSwa/playwright_ts_gitflow.git"
+  },
+  "homepage": "https://github.com/MariusSwa/playwright_ts_gitflow#readme",
+  "bugs": {
+    "url": "https://github.com/MariusSwa/playwright_ts_gitflow/issues"
+  },
+  "keywords": [
+    "playwright",
+    "typescript",
+    "test-automation",
+    "e2e-testing",
+    "qa",
+    "automation-framework",
+    "ci-cd",
+    "gitflow",
+    "testing"
+  ],
+  "author": "Marius Swanepoel (Test Duo)",
+  "license": "ISC",
+  "scripts": {
+    "test": "playwright test",
+    "test:ui": "playwright test --ui",
+    "test:headed": "playwright test --headed",
+    "test:debug": "playwright test --debug",
+    "report": "playwright show-report",
+    "codegen": "playwright codegen",
+    "lint": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.58.2",
+    "@types/node": "^25.2.3",
+    "dotenv": "^16.4.7",
+    "typescript": "^5.7.3"
+  }
+}
