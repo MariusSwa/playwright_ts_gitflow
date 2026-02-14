@@ -1,5 +1,6 @@
 import { Page, Locator, expect } from "@playwright/test";
 import { sel } from "../utils/selectors";
+import { routes } from "../utils/routes";
 
 export class LoginPage {
   readonly page: Page;
@@ -17,7 +18,7 @@ export class LoginPage {
   async goto() {
     // Common routes: /login, /auth/login, /account/login.
     // We try /login first; if your site differs, update here.
-    await this.page.goto("/login.php", { waitUntil: "domcontentloaded" });
+    await this.page.goto(routes.login, { waitUntil: "domcontentloaded" });
   }
 
   async login(email: string, password: string) {

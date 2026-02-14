@@ -1,5 +1,6 @@
 import { Page, Locator, expect } from "@playwright/test";
 import { sel } from "../utils/selectors";
+import { routes } from "../utils/routes";
 
 export class ShopPage {
   readonly page: Page;
@@ -16,7 +17,7 @@ export class ShopPage {
 
   async goto() {
     // Update if your shopping page route differs
-    await this.page.goto("/shopping/index.php", { waitUntil: "domcontentloaded" });
+    await this.page.goto(routes.shopping, { waitUntil: "domcontentloaded" });
   }
 
   async addFirstProductToCart() {

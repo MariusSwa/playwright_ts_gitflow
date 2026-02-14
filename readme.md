@@ -69,6 +69,116 @@ If login requires an account, register one manually first.
 
 ---
 
+
+# How to Create Your Own Tests  
+*(Beginner → Structured Framework Flow)*
+
+This project follows a simple development loop when adding new functionality.
+
+## Step 1 – Add Selectors
+
+Add your new selectors in:
+
+```
+src/utils/selectors.ts
+```
+
+Prefer `data-testid` selectors where possible.
+
+Example:
+
+```ts
+export const sel = {
+  checkoutButton: '[data-testid="checkout-button"]'
+};
+```
+
+---
+
+## Step 2 – Add Page Actions
+
+Create (or update) the relevant page object in:
+
+```
+src/pages/<Something>Page.ts
+```
+
+Add reusable methods there (your “functions”), and use selectors from `selectors.ts`.
+
+Example:
+
+```ts
+async clickCheckout() {
+  await this.page.locator(sel.checkoutButton).click();
+}
+```
+
+Keep tests clean — page objects should handle interaction logic.
+
+---
+
+## Step 3 – Register the Page in Fixtures
+
+If you created a new page object, register it in:
+
+```
+src/fixtures/test.ts
+```
+
+This allows tests to use dependency injection:
+
+```ts
+test("example", async ({ newPage }) => {
+  await newPage.doSomething();
+});
+```
+
+This keeps tests clean and avoids manually instantiating page classes.
+
+---
+
+## Step 4 – Write a Test
+
+Add or extend a spec file in:
+
+```
+tests/*.spec.ts
+```
+
+Use the fixture-injected page objects and **do not place selectors directly inside tests**.
+
+Example:
+
+```ts
+test("checkout flow", async ({ shopPage }) => {
+  await shopPage.goto();
+  await shopPage.clickCheckout();
+});
+```
+
+---
+
+## Step 5 – Run Only That Test While Developing
+
+```bash
+npx playwright test tests/<file>.spec.ts --headed
+```
+
+This speeds up development and debugging.
+
+---
+
+### Development Loop Summary
+
+1. Add selector  
+2. Add page method  
+3. Register page (if new)  
+4. Write test  
+5. Run focused test  
+
+Repeat.
+
+
 # Running Tests
 
 Run all tests:
