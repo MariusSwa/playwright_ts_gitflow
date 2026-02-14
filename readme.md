@@ -1,4 +1,4 @@
-![CI](https://github.com/YOURUSER/playwright_ts_gitflow/actions/workflows/tests.yml/badge.svg)
+![CI](https://github.com/MariusSwa/playwright_ts_gitflow/actions/workflows/tests.yml/badge.svg)
 ![Playwright](https://img.shields.io/badge/Playwright-Framework-45ba63)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.x-blue)
 ![GitFlow](https://img.shields.io/badge/GitFlow-Enabled-orange)
