@@ -7,12 +7,14 @@ export class LoginPage {
   readonly email: Locator;
   readonly password: Locator;
   readonly submit: Locator;
+  readonly authError: Locator;
 
   constructor(page: Page) {
     this.page = page;
-    this.email = page.locator(sel.loginEmail).first();
-    this.password = page.locator(sel.loginPassword).first();
-    this.submit = page.locator(sel.loginSubmit).first();
+    this.email = page.locator(sel.loginEmail);
+    this.password = page.locator(sel.loginPassword);
+    this.submit = page.locator(sel.loginSubmit);
+    this.authError = page.locator(sel.authError);
   }
 
   async goto() {

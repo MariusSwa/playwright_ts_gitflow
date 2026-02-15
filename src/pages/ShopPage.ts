@@ -4,41 +4,54 @@ import { routes } from "../utils/routes";
 
 export class ShopPage {
   readonly page: Page;
-  readonly productCard: Locator;
-  readonly addToCartBtn: Locator;
+  // readonly productCard: Locator;
+  // readonly addToCartBtn: Locator;
   readonly cartLink: Locator;
+  readonly filterInput: Locator;
+  readonly filterCategory: Locator;
+  readonly filterSort: Locator;
+  readonly filterApplyBtn: Locator;
+  readonly filterResetLnk: Locator;
+  readonly breadcrumbsCart: Locator;
+  readonly addJumpRope: Locator;
+
+  // Product Specific for beginners
+  readonly jumpRopeCard: Locator;
 
   constructor(page: Page) {
     this.page = page;
-    this.productCard = page.locator(sel.productCard);
-    this.addToCartBtn = page.locator(sel.addToCartBtn);
-    this.cartLink = page.locator(sel.cartLink).first();
+    // this.productCard = page.locator(sel.productCard);
+    // this.addToCartBtn = page.locator(sel.addToCartBtn);
+    this.cartLink = page.locator(sel.cartLink); // no .first() here
+    this.filterInput = page.locator(sel.filterInput);
+    this.filterCategory = page.locator(sel.filterCategory);
+    this.filterSort = page.locator(sel.filterSort);
+    this.filterApplyBtn = page.locator(sel.filterApplyBtn);
+    this.filterResetLnk = page.locator(sel.filterResetLnk);
+    this.breadcrumbsCart = page.locator(sel.breadcrumbsCart);
+    this.addJumpRope = page.locator(sel.addJumpRope);
+
+    // Product Specific for beginners
+    this.jumpRopeCard = page.locator(sel.jumpRopeCard);
+
   }
 
   async goto() {
-    // Update if your shopping page route differs
     await this.page.goto(routes.shopping, { waitUntil: "domcontentloaded" });
   }
 
-  async addFirstProductToCart() {
-    await expect(this.productCard.first()).toBeVisible();
-
-    // Prefer scoping add-to-cart inside the first card if possible.
-    const firstCard = this.productCard.first();
-    const scopedBtn = firstCard.locator(sel.addToCartBtn);
-
-    if (await scopedBtn.count()) {
-      await scopedBtn.first().click();
-      return;
-    }
-
-    // Fallback: click first add button on the page.
-    await expect(this.addToCartBtn.first()).toBeVisible();
-    await this.addToCartBtn.first().click();
+  async openBreadcrumbCart() {
+    // await expect(this.breadcrumbsCart).toBeVisible();
+    await this.breadcrumbsCart.click();
   }
 
-  async openCart() {
-    await expect(this.cartLink).toBeVisible();
-    await this.cartLink.click();
+  async waitForFiltersToLoad() {
+    await expect(this.filterInput).toBeVisible();
+    await expect(this.filterCategory).toBeVisible();
+    await expect(this.filterSort).toBeVisible();
+    await expect(this.filterApplyBtn).toBeVisible();
   }
+
+  
+
 }
