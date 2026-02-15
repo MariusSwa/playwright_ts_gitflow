@@ -4,13 +4,13 @@ import { test as setup, expect } from "../src/fixtures/test";
 
 const authFile = 'playwright/.auth/user.json';
 
-setup('authenticate', async ({ loginPage, page }) => {
+setup('authenticate', async ({ loginPage, page, dashboardPage }) => {
   const u = users.primary();
   await page.goto(routes.login);
 
   await loginPage.login(u.email, u.password);
 
-  await page.waitForURL(routes.dashboard);
+  await dashboardPage.confirmDashboard();
 
   await page.context().storageState({ path: authFile });
 });

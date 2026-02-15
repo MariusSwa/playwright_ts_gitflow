@@ -17,7 +17,7 @@ export const sel = {
   authError: '[data-testid="login-error"], #authError',
 
   //Dashboard
-  shopLink: '[data-testid="nav-shop"], a:has-text("Shop"), a[href*="shopping.php"]',
+  easyShopLink: '[data-testid="easy-shop-link"]',
 
   // Shop Main Page
   browseProductsLink: '[data-testid="shopping-go-products"], a:has-text("Browse products"), a[href*="products.php"]',
