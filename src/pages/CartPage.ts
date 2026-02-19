@@ -1,5 +1,5 @@
 import { Page, Locator, expect } from "@playwright/test";
-import { sel } from "../utils/selectors";
+import { sel } from "../utils/selectors/selectors";
 // import { routes } from "../utils/routes";
 
 export class CartPage {

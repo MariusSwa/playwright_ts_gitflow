@@ -1,17 +1,16 @@
 import { Page, Locator, expect } from "@playwright/test";
-import { sel } from "../utils/selectors";
+import { dashboardSel } from "../utils/selectors/dashboard.selectors";
+import { routes } from "../utils/routes";
 
 export class DashboardPage {
   readonly page: Page;
   readonly easyShopLink: Locator;
 
-
-
-
   constructor(page: Page) {
     this.page = page;
-    this.easyShopLink = page.locator(sel.easyShopLink);
-  
+
+    this.easyShopLink = dashboardSel.easyShopLink(page);
+
   }
 
   async confirmDashboard() {

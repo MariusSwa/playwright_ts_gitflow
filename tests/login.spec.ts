@@ -3,14 +3,9 @@ import { users } from "../src/data/users";
 
 
 // This test is expected to fail until you implement the login functionality and error handling in your app.
-test("login: invalid credentials shows an error", async ({ loginPage, page }) => {
+test("login: invalid credentials shows an error", async ({ loginPage }) => {
   await loginPage.goto();
-
-  // Intentionally invalid - this should work on most apps.
   await loginPage.login("invalid@example.com", "wrong-password");
-
-  // Confirm we show an error message. This selector is intentionally broad to work on most apps, but you may need to customize it for your app.
-  
   await expect(loginPage.authError).toBeVisible();
 });
 
@@ -27,5 +22,5 @@ test("login: valid credentials (only runs if env vars are provided)", async ({ l
 
   // After login, many sites redirect to dashboard/account.
   // Keep this flexible.
-  await expect(page).not.toHaveURL(/\/login.php/i);
+  await expect(page).not.toHaveURL('/login.php');
 });

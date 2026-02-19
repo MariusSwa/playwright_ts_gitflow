@@ -1,5 +1,5 @@
 import { test, expect } from "../src/fixtures/test";
-import { sel } from "../src/utils/selectors";
+import { sel } from "../src/utils/selectors/selectors";
 
 test("smoke: site loads", async ({ page }) => {
   await page.goto("/", { waitUntil: "domcontentloaded" });
