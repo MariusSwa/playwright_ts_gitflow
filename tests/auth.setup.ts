@@ -9,6 +9,7 @@ setup('authenticate', async ({ loginPage, page, dashboardPage }) => {
   await page.goto(routes.login);
 
   await loginPage.login(u.email, u.password);
+  
 
   await dashboardPage.confirmDashboard();
 

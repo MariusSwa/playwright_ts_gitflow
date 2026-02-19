@@ -10,10 +10,10 @@ export class DashboardPage {
     this.page = page;
 
     this.easyShopLink = dashboardSel.easyShopLink(page);
-
   }
 
   async confirmDashboard() {
+    await expect(this.page).toHaveURL(routes.dashboard);
     await expect(this.easyShopLink).toBeVisible();
   }
 
