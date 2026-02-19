@@ -1,5 +1,5 @@
 import { Page, Locator, expect } from "@playwright/test";
-import { sel } from "../utils/selectors/selectors";
+import { cartSel } from "../utils/selectors/cart.selectors";
 // import { routes } from "../utils/routes";
 
 export class CartPage {
@@ -11,8 +11,8 @@ export class CartPage {
 
   constructor(page: Page) {
     this.page = page;
-    this.cartItem = page.locator(sel.cartItem);
-    this.cartJumpRopeItem = page.locator(sel.cartJumpRopeItem);
+    this.cartItem = cartSel.cartItem(page);
+    this.cartJumpRopeItem = cartSel.cartJumpRopeItem(page);
   }
 
   //Expand this to look for any SKU in the cart, not just jump rope
@@ -21,7 +21,7 @@ export class CartPage {
   }
 
   async confirmCartItem(sku: string) {
-    const cartItem = this.page.locator(sel.cartItemBySKU(sku));
+    const cartItem = cartSel.cartItemBySKU(this.page, sku);
     await expect(cartItem).toBeVisible();
   }
 }

@@ -1,11 +1,11 @@
 import { Page, Locator, expect } from "@playwright/test";
-import { sel } from "../utils/selectors/selectors";
+import { shopSel } from "../utils/selectors/shop.selectors";
+import { breadcrumbSel } from "../utils/selectors/components/breadcrumb.selectors";
 import { routes } from "../utils/routes";
 
 export class ShopPage {
   readonly page: Page;
-  // readonly productCard: Locator;
-  // readonly addToCartBtn: Locator;
+
   readonly cartLink: Locator;
   readonly filterInput: Locator;
   readonly filterCategory: Locator;
@@ -20,20 +20,18 @@ export class ShopPage {
 
   constructor(page: Page) {
     this.page = page;
-    // this.productCard = page.locator(sel.productCard);
-    // this.addToCartBtn = page.locator(sel.addToCartBtn);
-    this.cartLink = page.locator(sel.cartLink); // no .first() here
-    this.filterInput = page.locator(sel.filterInput);
-    this.filterCategory = page.locator(sel.filterCategory);
-    this.filterSort = page.locator(sel.filterSort);
-    this.filterApplyBtn = page.locator(sel.filterApplyBtn);
-    this.filterResetLnk = page.locator(sel.filterResetLnk);
-    this.breadcrumbsCart = page.locator(sel.breadcrumbsCart);
-    this.addJumpRope = page.locator(sel.addJumpRope);
+
+    this.cartLink = shopSel.cartLink(page); // no .first() here
+    this.filterInput = shopSel.filterInput(page);
+    this.filterCategory = shopSel.filterCategory(page);
+    this.filterSort = shopSel.filterSort(page);
+    this.filterApplyBtn = shopSel.filterApplyBtn(page);
+    this.filterResetLnk = shopSel.filterResetLnk(page);
+    this.breadcrumbsCart = breadcrumbSel.breadcrumbsCart(page);
+    this.addJumpRope = shopSel.addJumpRope(page);
 
     // Product Specific for beginners
-    this.jumpRopeCard = page.locator(sel.jumpRopeCard);
-
+    this.jumpRopeCard = shopSel.jumpRopeCard(page);
   }
 
   async goto() {
