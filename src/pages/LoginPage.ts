@@ -1,5 +1,5 @@
 import { Page, Locator, expect } from "@playwright/test";
-import { sel } from "../utils/selectors";
+import { loginSel } from "../utils/selectors/login.selectors";
 import { routes } from "../utils/routes";
 
 export class LoginPage {
@@ -7,27 +7,26 @@ export class LoginPage {
   readonly email: Locator;
   readonly password: Locator;
   readonly submit: Locator;
+  readonly authError: Locator;
 
   constructor(page: Page) {
     this.page = page;
-    this.email = page.locator(sel.loginEmail).first();
-    this.password = page.locator(sel.loginPassword).first();
-    this.submit = page.locator(sel.loginSubmit).first();
+
+    this.email = loginSel.loginEmail(page);
+    this.password = loginSel.loginPassword(page);
+    this.submit = loginSel.loginSubmit(page);
+    this.authError = loginSel.authError(page);
   }
 
   async goto() {
-    // Common routes: /login, /auth/login, /account/login.
-    // We try /login first; if your site differs, update here.
     await this.page.goto(routes.login, { waitUntil: "domcontentloaded" });
   }
 
   async login(email: string, password: string) {
     await expect(this.email).toBeVisible();
     await this.email.fill(email);
-
     await expect(this.password).toBeVisible();
     await this.password.fill(password);
-
     await this.submit.click();
   }
 }

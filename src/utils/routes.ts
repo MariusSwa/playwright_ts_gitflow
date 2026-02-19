@@ -8,6 +8,7 @@
 export const routes = {
   home: "/",
   login: "/login.php",
-  shopping: "/shopping.php",
-  cart: "/cart.php"
+  shopping: "/shopping/products.php",
+  cart: "/shopping/cart.php",
+  dashboard: "/dashboard.php",
 };
