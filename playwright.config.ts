@@ -1,3 +1,11 @@
+// This file is the Playwright configuration file for the Test Duo Playground project. 
+// It defines the settings and options for running Playwright tests, including 
+// test directories, timeouts, retries, workers, reporters, and browser configurations. 
+// The configuration also specifies how to handle traces, screenshots, and videos on 
+// test failures. Additionally, it sets up projects for different browsers and a setup 
+// project for authentication. This configuration ensures that the tests are run 
+// consistently and efficiently across different environments.
+
 import { defineConfig, devices } from "@playwright/test";
 import { env } from "./src/utils/env";
 
@@ -29,6 +37,13 @@ export default defineConfig({
     ignoreHTTPSErrors: true
   },
 
+  // Projects define different browsers and configurations to run the tests against. 
+  // In this configuration, we have a setup project that runs any test files matching 
+  // the pattern `*.setup.ts`, which can be used for authentication setup or other global 
+  // test setup tasks. The Chromium project is configured to use the Chromium browser 
+  // with a specific storage state for authentication, and it depends on the setup project 
+  // to ensure that any necessary setup steps are completed before running the tests in 
+  // the Chromium project.
   projects: [
     {
       name: 'setup',

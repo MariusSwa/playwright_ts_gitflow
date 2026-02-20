@@ -1,4 +1,8 @@
 import { Page } from '@playwright/test';
+
+// Selectors for the Shop page and related components. These are organized by the area of the shop they relate to, 
+// such as main page, filters, and product-specific selectors. The dynamic product selectors are recommended for future 
+// use to reduce the need for hardcoded values and increase flexibility.
 export const shopSel = {
 
 // =========================
