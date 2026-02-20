@@ -1,3 +1,14 @@
+// This file is responsible for loading environment variables from a .env 
+// file and providing a utility function to access these variables. It uses 
+// the `dotenv` package to load the environment variables into `process.env`. 
+// The `getEnv` function is defined to retrieve the value of an environment 
+// variable by its name, with an optional fallback value. If the environment 
+// variable is not found and no fallback is provided, it throws an error. 
+// The `env` object is then exported, containing specific environment variables 
+// that are used in the application, such as `BASE_URL`, `E2E_EMAIL`, 
+// and `E2E_PASSWORD`. This allows other parts of the application to easily 
+// access these configuration values.
+
 import * as dotenv from "dotenv";
 
 dotenv.config();

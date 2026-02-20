@@ -1,3 +1,10 @@
+// This is the TypeScript configuration file for the Test Duo Playground project. 
+// It specifies the compiler options for TypeScript, including the target ECMAScript version, 
+// module system, strict type checking, and other settings. The `include` array defines the 
+// directories and files that should be included in the compilation process, such as the `tests`, 
+// `src`, and `playwright.config.ts` files. This configuration ensures that the TypeScript 
+// code in the project is compiled correctly and adheres to the specified standards and conventions.
+
 {
   "compilerOptions": {
     "target": "ES2022",

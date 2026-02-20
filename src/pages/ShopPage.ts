@@ -6,7 +6,7 @@ import { routes } from "../utils/routes";
 export class ShopPage {
   readonly page: Page;
 
-  readonly cartLink: Locator;
+  // readonly cartLink: Locator;
   readonly filterInput: Locator;
   readonly filterCategory: Locator;
   readonly filterSort: Locator;
@@ -21,7 +21,7 @@ export class ShopPage {
   constructor(page: Page) {
     this.page = page;
 
-    this.cartLink = shopSel.cartLink(page); // no .first() here
+    // this.cartLink = shopSel.cartLink(page);
     this.filterInput = shopSel.filterInput(page);
     this.filterCategory = shopSel.filterCategory(page);
     this.filterSort = shopSel.filterSort(page);
