@@ -4,7 +4,6 @@ import { users } from "../src/data/users";
 // This line removes any existing authentication state before running the tests in this file. 
 // This ensures that the tests start with a clean slate and are not affected by any previous login 
 // sessions.
-test.use({ storageState: { cookies: [], origins: [] } });
 
 // This test is expected to fail until you implement the login functionality and error handling in your app.
 test("login: invalid credentials shows an error", async ({ loginPage }) => {
