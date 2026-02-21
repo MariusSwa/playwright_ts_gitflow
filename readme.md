@@ -31,6 +31,7 @@ Install dependencies:
 
 ```bash
 npm install
+npm install -D @playwright/test
 ```
 
 Install Playwright browsers:

@@ -45,17 +45,31 @@ export default defineConfig({
   // to ensure that any necessary setup steps are completed before running the tests in 
   // the Chromium project.
   projects: [
+    // 1) Setup project only runs the auth setup file
     {
       name: 'setup',
       testMatch: /.*\.setup\.ts/,
     },
+
+    // 2) Authenticated tests (depends on setup)
     {
-      name: 'chromium',
+      name: 'chromium-auth',
       use: {
-        browserName: 'chromium',
+        ...devices['Desktop Chrome'],
         storageState: 'playwright/.auth/user.json',
       },
       dependencies: ['setup'],
+      testIgnore: /.*\.public\.spec\.ts/,
     },
-  ]
+
+    // 3) Public tests (NO auth dependency)
+    {
+      name: 'chromium-public',
+      use: {
+        ...devices['Desktop Chrome'],
+        storageState: { cookies: [], origins: [] },
+      },
+      testMatch: /.*\.public\.spec\.ts/,
+    },
+  ],
 });
