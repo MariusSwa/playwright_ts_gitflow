@@ -34,6 +34,10 @@ export class DashboardPage {
     await expect(this.easyShopLink).toBeVisible();
   }
 
+  async goto() {
+    await this.page.goto(routes.dashboard, { waitUntil: "domcontentloaded" });
+  }
+
   //TODO: Expand this to look for any SKU in the cart, not just jump rope
  
 }

@@ -1,9 +1,9 @@
 import { Page, Locator, expect } from "@playwright/test";
-import { shopSel } from "../utils/selectors/shop.selectors";
+import { productsSel } from "../utils/selectors/products.selectors";
 import { breadcrumbSel } from "../utils/selectors/components/breadcrumb.selectors";
 import { routes } from "../utils/routes";
 
-export class ShopPage {
+export class ProductsPage {
   readonly page: Page;
 
   // readonly cartLink: Locator;
@@ -14,6 +14,7 @@ export class ShopPage {
   readonly filterResetLnk: Locator;
   readonly breadcrumbsCart: Locator;
   readonly addJumpRope: Locator;
+  readonly productImageBySku: (sku: string) => Locator;
 
   // Product Specific for beginners
   readonly jumpRopeCard: Locator;
@@ -21,21 +22,22 @@ export class ShopPage {
   constructor(page: Page) {
     this.page = page;
 
-    // this.cartLink = shopSel.cartLink(page);
-    this.filterInput = shopSel.filterInput(page);
-    this.filterCategory = shopSel.filterCategory(page);
-    this.filterSort = shopSel.filterSort(page);
-    this.filterApplyBtn = shopSel.filterApplyBtn(page);
-    this.filterResetLnk = shopSel.filterResetLnk(page);
+    // this.cartLink = productsSel.cartLink(page);
+    this.filterInput = productsSel.filterInput(page);
+    this.filterCategory = productsSel.filterCategory(page);
+    this.filterSort = productsSel.filterSort(page);
+    this.filterApplyBtn = productsSel.filterApplyBtn(page);
+    this.filterResetLnk = productsSel.filterResetLnk(page);
     this.breadcrumbsCart = breadcrumbSel.breadcrumbsCart(page);
-    this.addJumpRope = shopSel.addJumpRope(page);
+    this.addJumpRope = productsSel.addJumpRope(page);
+    this.productImageBySku = (sku: string) => productsSel.productImageBySku(this.page, sku);
 
     // Product Specific for beginners
-    this.jumpRopeCard = shopSel.jumpRopeCard(page);
+    this.jumpRopeCard = productsSel.jumpRopeCard(page);
   }
 
   async goto() {
-    await this.page.goto(routes.shopping, { waitUntil: "domcontentloaded" });
+    await this.page.goto(routes.products, { waitUntil: "domcontentloaded" });
   }
 
   async openBreadcrumbCart() {
@@ -50,6 +52,5 @@ export class ShopPage {
     await expect(this.filterApplyBtn).toBeVisible();
   }
 
-  
 
 }

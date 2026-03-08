@@ -6,7 +6,7 @@ import { users } from "../src/data/users";
 // sessions.
 
 // This test is expected to fail until you implement the login functionality and error handling in your app.
-test("login: invalid credentials shows an error", async ({ loginPage }) => {
+test("login: invalid credentials shows an error", async ({ loginPage}) => {
   // Go to the login page
   await loginPage.goto();
   // Attempt to login with invalid credentials

@@ -200,6 +200,12 @@ Run in UI mode:
 npm run test:ui
 ```
 
+Run visual tests
+
+```bash
+npx playwright show-trace test-results/**/trace.zip
+```
+
 Debug mode:
 
 ```bash
@@ -328,6 +334,10 @@ test.fail(true, "Known issue: #42 - cart badge not updating");
 - smoke.spec.ts → basic site load test
 - login.spec.ts → login flow tests
 - cart.spec.ts → add product to cart
+
+## tests/visual
+- all visual tests are in this folder alongs with their default screenshots
+- products.visual.spec.ts → include visual in the test file name
 
 ## src/pages/
 

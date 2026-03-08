@@ -31,8 +31,6 @@ export class LoginPage {
     this.authError = loginSel.authError(page);
   }
 
-  // The goto method navigates to the login page using the URL defined in the routes. This can be called
-  // in test cases to ensure that the test starts on the correct page before performing any login actions.
   async goto() {
     await this.page.goto(routes.login, { waitUntil: "domcontentloaded" });
   }

@@ -9,7 +9,7 @@
 export const routes = {
   home: "/",
   login: "/login.php",
-  shopping: "/shopping/products.php",
+  products: "/shopping/products.php",
   cart: "/shopping/cart.php",
   dashboard: "/dashboard.php",
 };

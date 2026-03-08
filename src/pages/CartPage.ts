@@ -7,6 +7,7 @@
 
 import { Page, Locator, expect } from "@playwright/test";
 import { cartSel } from "../utils/selectors/cart.selectors";
+import { routes } from "../utils/routes";
 
 // The export allows this class to be imported and used in test files, such as cart.spec.ts, where 
 // we can create an instance of CartPage and call its methods to verify the cart's contents after 
@@ -38,5 +39,9 @@ export class CartPage {
     const cartItem = cartSel.cartItemBySKU(this.page, sku);
     await expect(cartItem).toBeVisible();
   }
+
+  async goto() {
+      await this.page.goto(routes.cart, { waitUntil: "domcontentloaded" });
+    }
 }
   

@@ -4,7 +4,7 @@ import {routes} from "../src/utils/routes";
 // A simple smoke test to verify the site loads. This is a sanity check and can be expanded with more assertions as needed.
 test("smoke: site loads", async ({ page }) => {
   // Navigate to the home page of the application. Adjust the URL if your app uses a different base path.
-  await page.goto("/", { waitUntil: "domcontentloaded" });
+  await page.goto(routes.home, { waitUntil: "domcontentloaded" });
   // Don’t make this too strict; it’s a starter.
   await expect(page).toHaveURL(routes.home);
   // TODO: Update cmment to include new age locators and assertions.
