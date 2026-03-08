@@ -12,7 +12,11 @@ import { env } from "./src/utils/env";
 export default defineConfig({
   testDir: "./tests",
   timeout: 30_000,
-  expect: { timeout: 10_000 },
+  expect: { timeout: 10_000,
+    toHaveScreenshot: {
+      maxDiffPixels: 100,
+    },
+   },
 
   // Nice defaults for fork-and-go:
   retries: process.env.CI ? 2 : 0,
@@ -35,7 +39,10 @@ export default defineConfig({
     // Helps reduce flakiness for new users:
     viewport: { width: 1366, height: 768 },
     ignoreHTTPSErrors: true
+    
   },
+
+
 
   // Projects define different browsers and configurations to run the tests against. 
   // In this configuration, we have a setup project that runs any test files matching 
@@ -59,10 +66,21 @@ export default defineConfig({
         storageState: 'playwright/.auth/user.json',
       },
       dependencies: ['setup'],
-      testIgnore: /.*\.public\.spec\.ts/,
+      testIgnore: [/.*\.public\.spec\.ts/, /.*\.visual\.spec\.ts/],
     },
 
-    // 3) Public tests (NO auth dependency)
+    // 3) Visual tests (depends on setup)
+    {
+      name: 'chromium-visual',
+      use: {
+        ...devices['Desktop Chrome'],
+        storageState: 'playwright/.auth/user.json',
+      },
+      dependencies: ['setup'],
+      testMatch: /.*\.visual\.spec\.ts/,
+    },
+
+    // 4) Public tests (NO auth dependency)
     {
       name: 'chromium-public',
       use: {
