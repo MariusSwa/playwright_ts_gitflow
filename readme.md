@@ -200,6 +200,12 @@ Run in UI mode:
 npm run test:ui
 ```
 
+Run visual tests
+
+```bash
+npx playwright show-trace test-results/**/trace.zip
+```
+
 Debug mode:
 
 ```bash
@@ -224,12 +230,6 @@ Run by test name:
 
 ```bash
 npx playwright test -g "cart:" --headed
-```
-
-Run visual tests
-
-```bash
-npx playwright show-trace test-results/**/trace.zip
 ```
 
 Run with trace enabled:
