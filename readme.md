@@ -203,7 +203,7 @@ npm run test:ui
 Run visual tests
 
 ```bash
-npx playwright show-trace test-results/**/trace.zip
+npx playwright test --project=chromium-visual
 ```
 
 Debug mode:
