@@ -226,6 +226,12 @@ Run by test name:
 npx playwright test -g "cart:" --headed
 ```
 
+Run visual tests
+
+```bash
+npx playwright show-trace test-results/**/trace.zip
+```
+
 Run with trace enabled:
 
 ```bash
