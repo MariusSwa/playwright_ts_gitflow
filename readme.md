@@ -335,6 +335,10 @@ test.fail(true, "Known issue: #42 - cart badge not updating");
 - login.spec.ts → login flow tests
 - cart.spec.ts → add product to cart
 
+## tests/visual
+- all visual tests are in this folder alongs with their default screenshots
+- products.visual.spec.ts → include visual in the test file name
+
 ## src/pages/
 
 LoginPage.ts  
