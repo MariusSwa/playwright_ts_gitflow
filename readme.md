@@ -380,3 +380,41 @@ cart.spec.ts does:
 
 ➡ https://playground.testduo.co.za  
 ➡ Built and maintained by https://testduo.co.za
+
+---
+
+## Codebase Tour (Newcomer Quick Map)
+
+### Folder structure at a glance
+
+- `tests/` → executable Playwright specs (`*.spec.ts`) plus setup (`auth.setup.ts`)
+- `src/pages/` → page objects (Login, Products, Cart, Dashboard)
+- `src/utils/selectors/` → locator factories grouped by page/component
+- `src/fixtures/test.ts` → custom fixture injection for page objects
+- `src/utils/env.ts` + `src/data/users.ts` → test configuration + credential sourcing
+- `playwright.config.ts` → global runtime behavior + projects (setup/auth/public/visual)
+
+### Mental model
+
+1. **Selectors** are centralized in `src/utils/selectors/**`.
+2. **Page objects** wrap UI actions/assertions.
+3. **Fixtures** inject page objects into tests.
+4. **Specs** orchestrate end-to-end flows.
+5. **Projects** in Playwright config decide test scope (auth/public/visual).
+
+### Extension workflow
+
+When adding a new flow, follow this order:
+
+1. Add selectors.
+2. Add/update page object methods.
+3. Register fixture (if introducing a new page object).
+4. Write focused spec(s).
+5. Run targeted project/spec first, then full suite.
+
+### What to learn next
+
+- Dynamic selector patterns (`BySKU`, `ByName`) for maintainable tests.
+- Playwright `storageState` reuse for fast authenticated suites.
+- Visual regression assertions and baseline lifecycle.
+- CI strategy (parallelization, retries, artifact triage).
