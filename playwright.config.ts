@@ -9,6 +9,10 @@
 import { defineConfig, devices } from "@playwright/test";
 import { env } from "./src/utils/env";
 
+const dbReporter: [string, { dbPath: string; enabled: boolean }][] = env.RESULTS_DB_ENABLED
+  ? [["./src/reporting/ResultsDbReporter.ts", { dbPath: env.RESULTS_DB_PATH, enabled: true }]]
+  : [];
+
 export default defineConfig({
   testDir: "./tests",
   timeout: 30_000,
@@ -24,7 +28,8 @@ export default defineConfig({
 
   reporter: [
     ["list"],
-    ["html", { open: "never", outputFolder: "playwright-report" }]
+    ["html", { open: "never", outputFolder: "playwright-report" }],
+    ...dbReporter,
   ],
 
   use: {
