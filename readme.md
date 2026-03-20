@@ -418,3 +418,62 @@ When adding a new flow, follow this order:
 - Playwright `storageState` reuse for fast authenticated suites.
 - Visual regression assertions and baseline lifecycle.
 - CI strategy (parallelization, retries, artifact triage).
+
+---
+
+## Database-backed Test Results (SQLite)
+
+A new optional Playwright reporter now persists execution metadata to SQLite so you can build dashboards, trend analytics, flaky-test detection, and prediction/risk layers on top of historical runs.
+
+### What was added
+
+- **Custom reporter**: `src/reporting/ResultsDbReporter.ts`
+  - Writes one `test_runs` row per run.
+  - Writes one `test_results` row per finalized test case.
+  - Writes `test_artifacts` rows for saved attachments (screenshots, traces, etc).
+  - Captures error message and stack trace for failed tests when available.
+- **Schema/init layer**: `src/reporting/db/schema.ts` + `src/reporting/db/resultsDb.ts`
+  - Creates the database automatically on first run.
+  - Uses indexed tables designed to be straightforward to port to PostgreSQL.
+- **Starter dashboard query helpers**: `src/reporting/queries/dashboardQueries.ts`
+  - Recent runs
+  - Failure rate by test
+  - Flaky candidate tests
+  - Slowest tests
+  - Failures by module
+
+### Enable it
+
+Add to `.env`:
+
+```bash
+RESULTS_DB_ENABLED=true
+RESULTS_DB_PATH=./artifacts/results.db
+```
+
+Then run tests as normal:
+
+```bash
+npm test
+```
+
+### SQLite database location
+
+By default, the DB is written to:
+
+```bash
+./artifacts/results.db
+```
+
+You can override it with `RESULTS_DB_PATH`.
+
+### Why this helps future analytics/dashboard work
+
+The schema stores run-level, test-level, and artifact-level data with stable test keys and metadata (branch, commit SHA, project/browser, module/page hints), giving you a clean base for:
+
+- run trend reporting
+- flaky detection heuristics
+- module/page risk hotspots
+- future prediction or risk scoring models
+
+The DB access logic is isolated behind a small repository layer so a PostgreSQL adapter can be introduced later with minimal disruption to reporter logic.
