@@ -444,6 +444,8 @@ A new optional Playwright reporter now persists execution metadata to SQLite so 
 
 ### Enable it
 
+This feature requires Node.js `22.13+` because it uses the built-in `node:sqlite` module.
+
 Add to `.env`:
 
 ```bash
@@ -477,3 +479,58 @@ The schema stores run-level, test-level, and artifact-level data with stable tes
 - future prediction or risk scoring models
 
 The DB access logic is isolated behind a small repository layer so a PostgreSQL adapter can be introduced later with minimal disruption to reporter logic.
+
+---
+
+## Local Results Dashboard
+
+A lightweight local dashboard is included to visualize test execution data from the results database.
+
+### What it includes
+
+- Dark-mode Bootstrap dashboard layout (header + sidebar + main content)
+- KPI cards driven by DB-backed dashboard settings
+- Trend charts for:
+  - Pass/Fail/Skip by run
+  - Pass rate trend
+  - Duration trend
+- Placeholder pages for Runs, Failures, Trends, and Settings for future expansion
+
+### Database settings added
+
+The dashboard uses a `dashboard_settings` table with a `dashboard` settings key and JSON payload.
+
+Default settings:
+
+- `dashboardHistoryRuns`: `20`
+- `visibleCards`: `totalRuns`, `passRate`, `passedTests`, `failedTests`, `skippedTests`, `avgDuration`
+- `visibleCharts`: `passFailSkipByRun`, `passRateTrend`, `durationTrend`
+- `defaultPageSize`: `20`
+
+### Run locally
+
+1. Ensure your Playwright run data exists in the results DB (default `./artifacts/results.db`).
+2. Optionally set environment variables:
+
+```bash
+export RESULTS_DB_PATH=./artifacts/results.db
+export DASHBOARD_PORT=3030
+```
+
+3. Start the dashboard:
+
+```bash
+npm run dashboard:start
+```
+
+4. Open:
+
+```text
+http://localhost:3030
+```
+
+### Notes
+
+- The dashboard reads from the existing `test_runs`, `test_results`, and related tables.
+- Settings are persisted in DB so history depth and card/chart visibility are configurable without code changes.
+- The code is organized by `db` / `services` / `routes` / `views` to support future analytics features (flaky detection, risk scoring, predictions).

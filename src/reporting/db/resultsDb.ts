@@ -1,7 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { DatabaseSync } from "node:sqlite";
-import { SCHEMA_SQL } from "./schema";
+import { ensureSchemaMigrations, SCHEMA_SQL } from "./schema";
 
 export type TestRunInsert = {
   runUuid: string;
@@ -65,6 +65,7 @@ export class ResultsDb {
     this.db.exec("PRAGMA journal_mode = WAL;");
     this.db.exec("PRAGMA foreign_keys = ON;");
     this.db.exec(SCHEMA_SQL);
+    ensureSchemaMigrations(this.db);
   }
 
   insertTestRun(data: TestRunInsert): number {

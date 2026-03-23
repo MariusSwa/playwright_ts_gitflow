@@ -1,3 +1,5 @@
+import type { DatabaseSync } from "node:sqlite";
+
 export const SCHEMA_SQL = `
 PRAGMA foreign_keys = ON;
 
@@ -63,6 +65,16 @@ CREATE TABLE IF NOT EXISTS test_artifacts (
 CREATE INDEX IF NOT EXISTS idx_test_artifacts_test_result_id ON test_artifacts(test_result_id);
 CREATE INDEX IF NOT EXISTS idx_test_artifacts_artifact_type ON test_artifacts(artifact_type);
 
+
+CREATE TABLE IF NOT EXISTS dashboard_settings (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  setting_key TEXT NOT NULL UNIQUE,
+  setting_value TEXT NOT NULL,
+  updated_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
+CREATE INDEX IF NOT EXISTS idx_dashboard_settings_key ON dashboard_settings(setting_key);
+
 CREATE TABLE IF NOT EXISTS linked_issues (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   test_result_id INTEGER NOT NULL,
@@ -72,3 +84,12 @@ CREATE TABLE IF NOT EXISTS linked_issues (
   FOREIGN KEY (test_result_id) REFERENCES test_results(id) ON DELETE CASCADE
 );
 `;
+
+function hasColumn(db: DatabaseSync, tableName: string, columnName: string): boolean {
+  const rows = db.prepare(`PRAGMA table_info(${tableName})`).all() as Array<{ name: string }>;
+  return rows.some((row) => row.name === columnName);
+}
+
+export function ensureSchemaMigrations(db: DatabaseSync): void {
+  hasColumn(db, "test_runs", "build_number");
+}

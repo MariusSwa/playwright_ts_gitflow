@@ -32,6 +32,7 @@ function getEnvBool(name: string, fallback: boolean): boolean {
 
 export const env = {
   BASE_URL: getEnv("BASE_URL", "https://playground.testduo.co.za"),
+  BUILD_NUMBER: getEnv("BUILD_NUMBER", process.env.GITHUB_RUN_NUMBER ?? "unknown"),
   E2E_EMAIL: process.env.E2E_EMAIL ?? "",
   E2E_PASSWORD: process.env.E2E_PASSWORD ?? "",
   RESULTS_DB_ENABLED: getEnvBool("RESULTS_DB_ENABLED", false),

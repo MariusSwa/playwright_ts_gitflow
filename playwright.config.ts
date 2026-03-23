@@ -9,6 +9,31 @@
 import { defineConfig, devices } from "@playwright/test";
 import { env } from "./src/utils/env";
 
+function parseMajorMinor(version: string): { major: number; minor: number } {
+  const [major = "0", minor = "0"] = version.split(".");
+  return {
+    major: Number.parseInt(major, 10) || 0,
+    minor: Number.parseInt(minor, 10) || 0,
+  };
+}
+
+function supportsBuiltInSqlite(version: string): boolean {
+  const { major, minor } = parseMajorMinor(version);
+  return major > 22 || (major === 22 && minor >= 13);
+}
+
+if (env.RESULTS_DB_ENABLED && !supportsBuiltInSqlite(process.versions.node)) {
+  throw new Error(
+    [
+      "RESULTS_DB_ENABLED=true requires Node.js 22.13+ because this project uses the built-in `node:sqlite` module.",
+      `Current Node.js version: ${process.versions.node}`,
+      "Switch Node versions and reinstall dependencies, for example:",
+      "  nvm use",
+      "  npm install",
+    ].join("\n"),
+  );
+}
+
 const dbReporter: [string, { dbPath: string; enabled: boolean }][] = env.RESULTS_DB_ENABLED
   ? [["./src/reporting/ResultsDbReporter.ts", { dbPath: env.RESULTS_DB_PATH, enabled: true }]]
   : [];

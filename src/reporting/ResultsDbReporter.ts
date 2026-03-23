@@ -10,6 +10,7 @@ import type {
   TestResult,
 } from "@playwright/test/reporter";
 import { ResultsDb } from "./db/resultsDb";
+import { env } from "../utils/env";
 
 type ReporterOptions = {
   enabled?: boolean;
@@ -105,7 +106,7 @@ class ResultsDbReporter implements Reporter {
     const totalTests = suite.allTests().length;
     const branch = process.env.GIT_BRANCH ?? process.env.BRANCH_NAME;
     const commitSha = process.env.GIT_COMMIT ?? process.env.GITHUB_SHA;
-    const buildNumber = process.env.BUILD_NUMBER ?? process.env.GITHUB_RUN_NUMBER;
+    const buildNumber = env.BUILD_NUMBER;
 
     const projectNames = config.projects.map((project) => project.name).join(", ");
     this.runId = this.db.insertTestRun({
