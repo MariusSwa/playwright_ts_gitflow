@@ -1,5 +1,6 @@
 import path from "node:path";
 import { randomUUID } from "node:crypto";
+import type { TestAnnotation } from "@playwright/test";
 import type {
   FullConfig,
   FullResult,
@@ -10,6 +11,8 @@ import type {
   TestResult,
 } from "@playwright/test/reporter";
 import { ResultsDb } from "./db/resultsDb";
+import type { AnalyticsRiskLevel } from "./analyticsMeta";
+import { env } from "../utils/env";
 
 type ReporterOptions = {
   enabled?: boolean;
@@ -73,6 +76,34 @@ function getModuleAndPage(filePath: string | undefined): { moduleName?: string; 
   return { moduleName, pageName };
 }
 
+function getAllAnnotations(test: TestCase, result: TestResult): TestAnnotation[] {
+  return [...test.annotations, ...result.annotations];
+}
+
+function getAnnotationValues(test: TestCase, result: TestResult, type: string): string[] {
+  return getAllAnnotations(test, result)
+    .filter((annotation) => annotation.type === type)
+    .map((annotation) => annotation.description?.trim())
+    .filter((value): value is string => Boolean(value));
+}
+
+function getAnnotationValue(test: TestCase, result: TestResult, type: string): string | undefined {
+  return getAnnotationValues(test, result, type).at(-1);
+}
+
+function getRiskLevel(test: TestCase, result: TestResult): AnalyticsRiskLevel | undefined {
+  const risk = getAnnotationValue(test, result, "risk")?.toLowerCase();
+  if (risk === "low" || risk === "medium" || risk === "high") {
+    return risk;
+  }
+
+  return undefined;
+}
+
+function getTags(test: TestCase, result: TestResult): string[] {
+  return [...test.tags, ...getAnnotationValues(test, result, "tag")];
+}
+
 class ResultsDbReporter implements Reporter {
   private readonly enabled: boolean;
   private readonly dbPath: string;
@@ -105,7 +136,7 @@ class ResultsDbReporter implements Reporter {
     const totalTests = suite.allTests().length;
     const branch = process.env.GIT_BRANCH ?? process.env.BRANCH_NAME;
     const commitSha = process.env.GIT_COMMIT ?? process.env.GITHUB_SHA;
-    const buildNumber = process.env.BUILD_NUMBER ?? process.env.GITHUB_RUN_NUMBER;
+    const buildNumber = env.BUILD_NUMBER;
 
     const projectNames = config.projects.map((project) => project.name).join(", ");
     this.runId = this.db.insertTestRun({
@@ -158,7 +189,8 @@ class ResultsDbReporter implements Reporter {
 
       const browser = resolveBrowserName(test.parent.project()?.name);
       const filePath = path.relative(process.cwd(), test.location.file);
-      const { moduleName, pageName } = getModuleAndPage(filePath);
+      const { moduleName, pageName: inferredPageName } = getModuleAndPage(filePath);
+      const pageName = getAnnotationValue(test, testResult, "page") ?? inferredPageName;
 
       this.db.insertResultWithArtifacts(
         {
@@ -177,6 +209,12 @@ class ResultsDbReporter implements Reporter {
           failureType: getFailureType(testResult),
           moduleName,
           pageName,
+          featureName: getAnnotationValue(test, testResult, "feature"),
+          journeyName: getAnnotationValue(test, testResult, "journey"),
+          pageObjectName: getAnnotationValue(test, testResult, "pageObject"),
+          componentName: getAnnotationValue(test, testResult, "component"),
+          riskLevel: getRiskLevel(test, testResult),
+          tags: getTags(test, testResult),
         },
         testResult.attachments
           .filter((attachment) => attachment.path)

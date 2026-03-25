@@ -1,8 +1,22 @@
 import { test, expect } from "../src/fixtures/test";
+import { toAnalyticsAnnotations } from "../src/reporting/analyticsMeta";
 
 
 // This test is a simple example of how to add a product to the cart and verify that the cart has items.
-test("cart: add first product to cart and verify cart has items", async ({ productsPage, cartPage }) => {
+test(
+  "cart: add first product to cart and verify cart has items",
+  {
+    annotation: toAnalyticsAnnotations({
+      feature: "shop",
+      journey: "add-to-cart",
+      page: "products",
+      pageObject: "ProductsPage",
+      component: "ui",
+      risk: "high",
+      tags: ["smoke", "cart", "authenticated"],
+    }),
+  },
+  async ({ productsPage, cartPage }) => {
   // Navigate to the shop page.
   await productsPage.goto();
   // Fill the filter input with the product name "Jump Rope".
@@ -17,4 +31,5 @@ test("cart: add first product to cart and verify cart has items", async ({ produ
   await productsPage.openBreadcrumbCart();
   // Verify that the cart page shows that it has items in it.
   await cartPage.expectHasItems();
-});
+  },
+);
