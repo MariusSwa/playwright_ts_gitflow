@@ -6,7 +6,7 @@ test("smoke: site loads", async ({ page }) => {
   // Navigate to the home page of the application. Adjust the URL if your app uses a different base path.
   await page.goto(routes.home, { waitUntil: "domcontentloaded" });
   // Don’t make this too strict; it’s a starter.
-  await expect(page).toHaveURL(routes.cart);
+  await expect(page).toHaveURL(routes.home);
   // TODO: Update cmment to include new age locators and assertions.
   // Optionally, check for a common element that should be present on the home page to confirm it loaded correctly.
   // For example, if your home page has a header with the text "Welcome", you could check for that:
