@@ -21,6 +21,26 @@ const DEFAULT_SETTINGS: DashboardSettings = {
 
 const SETTINGS_KEY = "dashboard";
 
+function cleanupStaleSqliteSidecars(dbPath: string): void {
+  const walPath = `${dbPath}-wal`;
+  const shmPath = `${dbPath}-shm`;
+
+  if (!fs.existsSync(dbPath)) {
+    fs.rmSync(walPath, { force: true });
+    fs.rmSync(shmPath, { force: true });
+    return;
+  }
+
+  const dbStats = fs.statSync(dbPath);
+  const walExists = fs.existsSync(walPath);
+  const shmExists = fs.existsSync(shmPath);
+
+  if (dbStats.size <= 4096 && shmExists && (!walExists || fs.statSync(walPath).size === 0)) {
+    fs.rmSync(walPath, { force: true });
+    fs.rmSync(shmPath, { force: true });
+  }
+}
+
 function parseSettings(value: string | null): DashboardSettings {
   if (!value) {
     return DEFAULT_SETTINGS;
@@ -61,6 +81,7 @@ function parseSettings(value: string | null): DashboardSettings {
 export function withDashboardDb<T>(dbPath: string, fn: (db: DatabaseSync) => T): T {
   const resolvedPath = path.resolve(dbPath);
   fs.mkdirSync(path.dirname(resolvedPath), { recursive: true });
+  cleanupStaleSqliteSidecars(resolvedPath);
   const db = new DatabaseSync(resolvedPath);
   try {
     db.exec("PRAGMA foreign_keys = ON;");

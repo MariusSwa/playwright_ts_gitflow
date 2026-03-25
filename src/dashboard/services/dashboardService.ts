@@ -1,4 +1,4 @@
-import type { DashboardSummary, RunTrendPoint, TopFailingTestPoint } from "../types";
+import type { DashboardSummary, FailTrendPoint, RunTrendPoint, TopFailingTestPoint } from "../types";
 import { getDashboardSettings, withDashboardDb } from "../db/dashboardDb";
 
 export type DashboardPageData = {
@@ -6,6 +6,7 @@ export type DashboardPageData = {
   summary: DashboardSummary;
   trends: RunTrendPoint[];
   topFailingTests: TopFailingTestPoint[];
+  failTrend: FailTrendPoint[];
 };
 
 export function getDashboardPageData(dbPath: string): DashboardPageData {
@@ -15,28 +16,29 @@ export function getDashboardPageData(dbPath: string): DashboardPageData {
   return withDashboardDb(dbPath, (db) => {
     const summaryStmt = db.prepare(`
       WITH recent_runs AS (
-        SELECT *
+        SELECT id, duration_ms
         FROM test_runs
+        WHERE status != 'running'
         ORDER BY datetime(started_at) DESC
         LIMIT ?
+      ),
+      recent_results AS (
+        SELECT tr.*
+        FROM test_results tr
+        WHERE tr.test_run_id IN (SELECT id FROM recent_runs)
       )
       SELECT
-        COUNT(*) AS total_runs,
-        COALESCE(SUM(passed_count), 0) AS passed_tests,
-        COALESCE(SUM(failed_count), 0) AS failed_tests,
-        COALESCE(SUM(skipped_count), 0) AS skipped_tests,
-        COALESCE(AVG(duration_ms), 0) AS avg_duration_per_run_ms,
-        COALESCE((
-          SELECT AVG(tr.duration_ms)
-          FROM test_results tr
-          WHERE tr.test_run_id IN (SELECT id FROM recent_runs)
-            AND tr.duration_ms IS NOT NULL
-        ), 0) AS avg_duration_per_test_ms,
+        (SELECT COUNT(*) FROM recent_runs) AS total_runs,
+        COALESCE(SUM(CASE WHEN recent_results.status = 'passed' THEN 1 ELSE 0 END), 0) AS passed_tests,
+        COALESCE(SUM(CASE WHEN recent_results.status = 'failed' THEN 1 ELSE 0 END), 0) AS failed_tests,
+        COALESCE(SUM(CASE WHEN recent_results.status = 'skipped' THEN 1 ELSE 0 END), 0) AS skipped_tests,
+        COALESCE((SELECT AVG(duration_ms) FROM recent_runs WHERE duration_ms IS NOT NULL), 0) AS avg_duration_per_run_ms,
+        COALESCE(AVG(recent_results.duration_ms), 0) AS avg_duration_per_test_ms,
         CASE
-          WHEN COALESCE(SUM(total_tests), 0) = 0 THEN 0
-          ELSE (100.0 * COALESCE(SUM(passed_count), 0) / SUM(total_tests))
+          WHEN COUNT(recent_results.id) = 0 THEN 0
+          ELSE (100.0 * SUM(CASE WHEN recent_results.status = 'passed' THEN 1 ELSE 0 END) / COUNT(recent_results.id))
         END AS pass_rate
-      FROM recent_runs
+      FROM recent_results
     `);
 
     const summaryRow = summaryStmt.get(history) as {
@@ -53,6 +55,7 @@ export function getDashboardPageData(dbPath: string): DashboardPageData {
       WITH recent_runs AS (
         SELECT id
         FROM test_runs
+        WHERE status != 'running'
         ORDER BY datetime(started_at) DESC
         LIMIT ?
       )
@@ -75,6 +78,7 @@ export function getDashboardPageData(dbPath: string): DashboardPageData {
       WITH recent_runs AS (
         SELECT id
         FROM test_runs
+        WHERE status != 'running'
         ORDER BY datetime(started_at) DESC
         LIMIT ?
       )
@@ -111,6 +115,7 @@ export function getDashboardPageData(dbPath: string): DashboardPageData {
           ELSE (100.0 * passed_count / total_tests)
         END AS pass_rate
       FROM test_runs
+      WHERE status != 'running'
       ORDER BY datetime(started_at) DESC
       LIMIT ?
     `);
@@ -121,6 +126,7 @@ export function getDashboardPageData(dbPath: string): DashboardPageData {
       WITH recent_runs AS (
         SELECT id
         FROM test_runs
+        WHERE status != 'running'
         ORDER BY datetime(started_at) DESC
         LIMIT ?
       )
@@ -136,6 +142,36 @@ export function getDashboardPageData(dbPath: string): DashboardPageData {
     `);
 
     const topFailingTests = topFailingTestsStmt.all(history) as TopFailingTestPoint[];
+
+    const failTrendStmt = db.prepare(`
+      WITH recent_runs AS (
+        SELECT id
+        FROM test_runs
+        WHERE status != 'running'
+        ORDER BY datetime(started_at) DESC
+        LIMIT ?
+      )
+      SELECT
+        COALESCE(page_name, 'unknown') AS page_name,
+        test_title,
+        COUNT(*) AS failure_count
+      FROM test_results
+      WHERE status = 'failed'
+        AND test_run_id IN (SELECT id FROM recent_runs)
+      GROUP BY COALESCE(page_name, 'unknown'), test_title
+      ORDER BY failure_count DESC, page_name ASC, test_title ASC
+      LIMIT 10
+    `);
+
+    const failTrend = (failTrendStmt.all(history) as Array<{
+      page_name: string;
+      test_title: string;
+      failure_count: number;
+    }>).map((row) => ({
+      pageName: row.page_name,
+      testTitle: row.test_title,
+      failureCount: row.failure_count,
+    }));
 
     return {
       settings,
@@ -156,6 +192,7 @@ export function getDashboardPageData(dbPath: string): DashboardPageData {
       },
       trends,
       topFailingTests,
+      failTrend,
     };
   });
 }

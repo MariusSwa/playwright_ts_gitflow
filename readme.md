@@ -218,6 +218,47 @@ View HTML report:
 npm run report
 ```
 
+## Analytics Metadata
+
+Tests can attach structured analytics metadata that the custom results DB reporter stores for dashboards, historical analysis, and future AI-based predictions.
+
+Use [`src/reporting/analyticsMeta.ts`](/home/test-duo/repos/mariusswa/playwright_ts_gitflow/src/reporting/analyticsMeta.ts) to convert metadata into Playwright annotations:
+
+```ts
+import { test } from "../src/fixtures/test";
+import { toAnalyticsAnnotations } from "../src/reporting/analyticsMeta";
+
+test(
+  "cart: add first product to cart",
+  {
+    annotation: toAnalyticsAnnotations({
+      feature: "shop",
+      journey: "add-to-cart",
+      page: "products",
+      pageObject: "ProductsPage",
+      component: "ui",
+      risk: "high",
+      tags: ["smoke", "cart", "authenticated"],
+    }),
+  },
+  async ({ productsPage }) => {
+    await productsPage.goto();
+  },
+);
+```
+
+Supported metadata:
+
+- `feature`
+- `journey`
+- `page`
+- `pageObject`
+- `component`
+- `risk`
+- `tags`
+
+If `page` is not supplied, the reporter falls back to the current file-path-based page inference so existing tests continue to work unchanged.
+
 ---
 
 # Run a Single Test File

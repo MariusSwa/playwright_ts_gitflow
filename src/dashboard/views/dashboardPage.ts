@@ -64,6 +64,17 @@ export function renderDashboardPage(data: DashboardPageData): string {
     )
     .join("\n");
 
+  const failTrendRows = data.failTrend
+    .map(
+      (item, index) => `<tr>
+        <td class="text-secondary">${index + 1}</td>
+        <td>${item.pageName}</td>
+        <td>${item.testTitle}</td>
+        <td class="text-end fw-semibold">${item.failureCount}</td>
+      </tr>`,
+    )
+    .join("\n");
+
   const payload = JSON.stringify(data).replace(/</g, "\\u003c");
 
   return `<section class="container-fluid p-0">
@@ -75,6 +86,32 @@ export function renderDashboardPage(data: DashboardPageData): string {
     <div class="row g-3 mb-4">${cardsHtml}</div>
 
     <div class="row g-3">${chartPlaceholders || '<div class="col-12 text-secondary">No charts are currently enabled in settings.</div>'}</div>
+
+    <div class="card bg-body-tertiary border-secondary-subtle mt-4">
+      <div class="card-header border-secondary-subtle d-flex justify-content-between align-items-center">
+        <span>Fail trend</span>
+        <span class="text-secondary small">Most failed tests by page</span>
+      </div>
+      <div class="card-body p-0">
+        ${
+          data.failTrend.length
+            ? `<div class="table-responsive">
+          <table class="table table-dark table-hover align-middle mb-0">
+            <thead>
+              <tr>
+                <th scope="col" class="text-secondary">#</th>
+                <th scope="col" class="text-secondary">Page</th>
+                <th scope="col" class="text-secondary">Test</th>
+                <th scope="col" class="text-secondary text-end">Failures</th>
+              </tr>
+            </thead>
+            <tbody>${failTrendRows}</tbody>
+          </table>
+        </div>`
+            : '<div class="p-3 text-secondary">No failed tests found in the current history window.</div>'
+        }
+      </div>
+    </div>
   </section>
 
   <script>

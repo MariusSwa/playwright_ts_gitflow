@@ -1,19 +1,34 @@
 import { test, expect } from "../src/fixtures/test";
 import { users } from "../src/data/users";
+import { toAnalyticsAnnotations } from "../src/reporting/analyticsMeta";
 
 // This line removes any existing authentication state before running the tests in this file. 
 // This ensures that the tests start with a clean slate and are not affected by any previous login 
 // sessions.
 
 // This test is expected to fail until you implement the login functionality and error handling in your app.
-test("login: invalid credentials shows an error", async ({ loginPage}) => {
+test(
+  "login: invalid credentials shows an error",
+  {
+    annotation: toAnalyticsAnnotations({
+      feature: "shop",
+      journey: "login-validation",
+      page: "login",
+      pageObject: "LoginPage",
+      component: "ui",
+      risk: "medium",
+      tags: ["smoke", "auth", "public"],
+    }),
+  },
+  async ({ loginPage}) => {
   // Go to the login page
   await loginPage.goto();
   // Attempt to login with invalid credentials
   await loginPage.login("invalid@example.com", "wrong-password");
   // Expect an error message to be visible
   await expect(loginPage.authError).toBeVisible();
-});
+  },
+);
 
 // This test requires valid credentials, so it will be skipped if env vars are not set.
 test("login: valid credentials (only runs if env vars are provided)", async ({ loginPage, page }) => {

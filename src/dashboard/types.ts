@@ -48,3 +48,9 @@ export type TopFailingTestPoint = {
   testTitle: string;
   failureCount: number;
 };
+
+export type FailTrendPoint = {
+  pageName: string;
+  testTitle: string;
+  failureCount: number;
+};

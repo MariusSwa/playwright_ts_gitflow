@@ -44,6 +44,11 @@ CREATE TABLE IF NOT EXISTS test_results (
   failure_type TEXT,
   module_name TEXT,
   page_name TEXT,
+  feature_name TEXT,
+  journey_name TEXT,
+  page_object_name TEXT,
+  component_name TEXT,
+  risk_level TEXT,
   created_at TEXT NOT NULL DEFAULT (datetime('now')),
   FOREIGN KEY (test_run_id) REFERENCES test_runs(id) ON DELETE CASCADE
 );
@@ -52,6 +57,7 @@ CREATE INDEX IF NOT EXISTS idx_test_results_test_run_id ON test_results(test_run
 CREATE INDEX IF NOT EXISTS idx_test_results_stable_test_key ON test_results(stable_test_key);
 CREATE INDEX IF NOT EXISTS idx_test_results_status ON test_results(status);
 CREATE INDEX IF NOT EXISTS idx_test_results_project_name ON test_results(project_name);
+CREATE INDEX IF NOT EXISTS idx_test_results_page_name ON test_results(page_name);
 
 CREATE TABLE IF NOT EXISTS test_artifacts (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -65,6 +71,17 @@ CREATE TABLE IF NOT EXISTS test_artifacts (
 CREATE INDEX IF NOT EXISTS idx_test_artifacts_test_result_id ON test_artifacts(test_result_id);
 CREATE INDEX IF NOT EXISTS idx_test_artifacts_artifact_type ON test_artifacts(artifact_type);
 
+CREATE TABLE IF NOT EXISTS test_result_tags (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  test_result_id INTEGER NOT NULL,
+  tag TEXT NOT NULL,
+  created_at TEXT NOT NULL DEFAULT (datetime('now')),
+  FOREIGN KEY (test_result_id) REFERENCES test_results(id) ON DELETE CASCADE,
+  UNIQUE (test_result_id, tag)
+);
+
+CREATE INDEX IF NOT EXISTS idx_test_result_tags_test_result_id ON test_result_tags(test_result_id);
+CREATE INDEX IF NOT EXISTS idx_test_result_tags_tag ON test_result_tags(tag);
 
 CREATE TABLE IF NOT EXISTS dashboard_settings (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -90,6 +107,36 @@ function hasColumn(db: DatabaseSync, tableName: string, columnName: string): boo
   return rows.some((row) => row.name === columnName);
 }
 
+function ensureColumn(db: DatabaseSync, tableName: string, columnName: string, definition: string): void {
+  if (!hasColumn(db, tableName, columnName)) {
+    db.exec(`ALTER TABLE ${tableName} ADD COLUMN ${columnName} ${definition}`);
+  }
+}
+
 export function ensureSchemaMigrations(db: DatabaseSync): void {
-  hasColumn(db, "test_runs", "build_number");
+  ensureColumn(db, "test_runs", "build_number", "TEXT");
+  ensureColumn(db, "test_results", "feature_name", "TEXT");
+  ensureColumn(db, "test_results", "journey_name", "TEXT");
+  ensureColumn(db, "test_results", "page_object_name", "TEXT");
+  ensureColumn(db, "test_results", "component_name", "TEXT");
+  ensureColumn(db, "test_results", "risk_level", "TEXT");
+
+  db.exec(`
+    CREATE INDEX IF NOT EXISTS idx_test_results_page_name ON test_results(page_name);
+    CREATE INDEX IF NOT EXISTS idx_test_results_feature_name ON test_results(feature_name);
+    CREATE INDEX IF NOT EXISTS idx_test_results_journey_name ON test_results(journey_name);
+    CREATE INDEX IF NOT EXISTS idx_test_results_risk_level ON test_results(risk_level);
+
+    CREATE TABLE IF NOT EXISTS test_result_tags (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      test_result_id INTEGER NOT NULL,
+      tag TEXT NOT NULL,
+      created_at TEXT NOT NULL DEFAULT (datetime('now')),
+      FOREIGN KEY (test_result_id) REFERENCES test_results(id) ON DELETE CASCADE,
+      UNIQUE (test_result_id, tag)
+    );
+
+    CREATE INDEX IF NOT EXISTS idx_test_result_tags_test_result_id ON test_result_tags(test_result_id);
+    CREATE INDEX IF NOT EXISTS idx_test_result_tags_tag ON test_result_tags(tag);
+  `);
 }

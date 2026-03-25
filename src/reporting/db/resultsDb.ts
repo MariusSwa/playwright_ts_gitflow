@@ -1,7 +1,29 @@
 import fs from "node:fs";
 import path from "node:path";
 import { DatabaseSync } from "node:sqlite";
+import type { AnalyticsRiskLevel } from "../analyticsMeta";
+import { normalizeAnalyticsTags } from "../analyticsMeta";
 import { ensureSchemaMigrations, SCHEMA_SQL } from "./schema";
+
+function cleanupStaleSqliteSidecars(dbPath: string): void {
+  const walPath = `${dbPath}-wal`;
+  const shmPath = `${dbPath}-shm`;
+
+  if (!fs.existsSync(dbPath)) {
+    fs.rmSync(walPath, { force: true });
+    fs.rmSync(shmPath, { force: true });
+    return;
+  }
+
+  const dbStats = fs.statSync(dbPath);
+  const walExists = fs.existsSync(walPath);
+  const shmExists = fs.existsSync(shmPath);
+
+  if (dbStats.size <= 4096 && shmExists && (!walExists || fs.statSync(walPath).size === 0)) {
+    fs.rmSync(walPath, { force: true });
+    fs.rmSync(shmPath, { force: true });
+  }
+}
 
 export type TestRunInsert = {
   runUuid: string;
@@ -47,6 +69,12 @@ export type TestResultInsert = {
   failureType?: string;
   moduleName?: string;
   pageName?: string;
+  featureName?: string;
+  journeyName?: string;
+  pageObjectName?: string;
+  componentName?: string;
+  riskLevel?: AnalyticsRiskLevel;
+  tags?: string[];
 };
 
 export type TestArtifactInsert = {
@@ -55,12 +83,18 @@ export type TestArtifactInsert = {
   artifactPath: string;
 };
 
+export type TestResultTagInsert = {
+  testResultId: number;
+  tag: string;
+};
+
 export class ResultsDb {
   private readonly db: DatabaseSync;
 
   constructor(dbPath: string) {
     const resolvedPath = path.resolve(dbPath);
     fs.mkdirSync(path.dirname(resolvedPath), { recursive: true });
+    cleanupStaleSqliteSidecars(resolvedPath);
     this.db = new DatabaseSync(resolvedPath);
     this.db.exec("PRAGMA journal_mode = WAL;");
     this.db.exec("PRAGMA foreign_keys = ON;");
@@ -129,8 +163,9 @@ export class ResultsDb {
       INSERT INTO test_results (
         test_run_id, stable_test_key, test_title, suite_name, file_path, project_name,
         browser, status, retry, duration_ms, error_message, stack_trace,
-        failure_type, module_name, page_name
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        failure_type, module_name, page_name, feature_name, journey_name,
+        page_object_name, component_name, risk_level
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `);
 
     const result = stmt.run(
@@ -149,6 +184,11 @@ export class ResultsDb {
       data.failureType ?? null,
       data.moduleName ?? null,
       data.pageName ?? null,
+      data.featureName ?? null,
+      data.journeyName ?? null,
+      data.pageObjectName ?? null,
+      data.componentName ?? null,
+      data.riskLevel ?? null,
     );
 
     return Number(result.lastInsertRowid);
@@ -163,6 +203,15 @@ export class ResultsDb {
     stmt.run(data.testResultId, data.artifactType, data.artifactPath);
   }
 
+  insertTestResultTag(data: TestResultTagInsert): void {
+    const stmt = this.db.prepare(`
+      INSERT OR IGNORE INTO test_result_tags (test_result_id, tag)
+      VALUES (?, ?)
+    `);
+
+    stmt.run(data.testResultId, data.tag);
+  }
+
   insertResultWithArtifacts(result: TestResultInsert, artifacts: Omit<TestArtifactInsert, "testResultId">[]): number {
     this.db.exec("BEGIN");
     try {
@@ -173,6 +222,9 @@ export class ResultsDb {
           artifactType: artifact.artifactType,
           artifactPath: artifact.artifactPath,
         });
+      }
+      for (const tag of normalizeAnalyticsTags(result.tags)) {
+        this.insertTestResultTag({ testResultId, tag });
       }
       this.db.exec("COMMIT");
       return testResultId;
